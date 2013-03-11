@@ -10,7 +10,8 @@
 
 -export([
     listen/2, 
-    accept/2, 
+    accept/2,
+    connect/4,
     recv/3, 
     send/2,
     sendfile/5,
@@ -33,8 +34,6 @@ listen({ssl, Port}, Opts) ->
 listen(Port, Opts) ->
     gen_tcp:listen(Port, Opts).
 
-
-%%
 %%
 accept({ssl, ListenSocket}, Timeout) when Timeout > 2 ->
     AcceptTimeout = 1 + erlang:round(Timeout / 10),
@@ -57,6 +56,17 @@ accept({ssl, ListenSocket}, Timeout) when Timeout > 2 ->
     end;
 accept(ListenSocket, Timeout) ->
     gen_tcp:accept(ListenSocket, Timeout).
+
+%%
+connect(Address, {ssl, Port}, Options, Timeout) ->
+    case ssl:connect(Address, Port, Options, Timeout) of
+        {ok, Socket} ->
+            {ok, {ssl, Socket}};
+        {error, _} = Err ->
+            Err
+    end;
+connect(Address, Port, Options, Timeout) ->
+    gen_tcp:connect(Address, Port, Options, Timeout).
 
 %%
 recv({ssl, Socket}, Length, Timeout) ->
@@ -100,7 +110,6 @@ peername({ssl, Socket}) ->
 peername(Socket) ->
     inet:peername(Socket).
 
-
 %%
 setopts({ssl, Socket}, Opts) ->
     ssl:setopts(Socket, Opts);
@@ -112,4 +121,3 @@ type({ssl, _}) ->
     ssl;
 type(_) ->
     plain.
-
