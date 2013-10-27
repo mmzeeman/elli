@@ -346,7 +346,6 @@ get_request(Socket, Buffer, Options, {Mod, Args} = Callback) ->
             elli_tcp:close(Socket),
             exit(normal);
         {ok, {http_response, _, _, _}, _} ->
-            gen_tcp:close(Socket),
             elli_tcp:close(Socket),
             exit(normal)
     end.
