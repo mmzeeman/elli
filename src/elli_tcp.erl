@@ -2,7 +2,11 @@
 %% mochiweb_socket.erl
 
 -module(elli_tcp).
--export([listen/3, accept/2, recv/3, send/2, close/1, setopts/2, sendfile/5]).
+-export([listen/3, accept/2, recv/3, send/2, close/1, setopts/2, sendfile/5, peername/1]).
+
+-export_type([socket/0]).
+
+-type socket() :: {tcp, inet:socket()} | {ssl, ssl:sslsocket()}. 
 
 listen(plain, Port, Opts) ->
     case gen_tcp:listen(Port, Opts) of
@@ -71,4 +75,7 @@ sendfile(_Fd, {ssl, _}, _Offset, _Length, _Opts) ->
     throw(ssl_sendfile_not_supported).
 
 
-
+peername({plain, Socket}) ->
+    inet:peername(Socket);
+peername({ssl, Socket}) ->
+    ssl:peername(Socket).
